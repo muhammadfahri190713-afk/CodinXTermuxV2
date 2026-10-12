@@ -31,7 +31,7 @@ CodinXTermuxV2 adalah coding agent berbasis Python yang berjalan lokal di termin
 | Web tools | `websearch` dengan DuckDuckGo Lite + fallback HTML dan `webfetch` dengan method, header, body, serta HTML-to-text |
 | Provider | Banyak endpoint OpenAI-compatible melalui `/connect`; model live dapat diambil dari endpoint provider |
 | Akun lokal | Sign Up, Log in, auto-login terenkripsi, audit login, dan admin panel lokal |
-| UI terminal | Banner, tema, border, spinner, prompt, gutter, Markdown renderer, tabel, syntax highlighting |
+| UI terminal | 49+ tema, 16 preset desain, banner hero, border dashed/thin, spinner scan/wave/orbit, prompt, gutter, Markdown renderer, tabel, syntax highlighting |
 | Workflow | Mode `/plan`, `/build`, `/undo`, `/redo`, `/compact`, `/doctor`, sesi persisten, dan sub-agent |
 | Platform | Linux, container, dan Termux tanpa root |
 

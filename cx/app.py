@@ -244,7 +244,13 @@ class App:
         if style == "pills":
             parts = [T.pill("accent" if build else "warn", self.ctx.mode), T.pill("accent2", self.cfg["model"]), c("muted", cost), ctx_c]
             return "  " + " ".join(parts + [c("warn", t) for t in tags])
-        sep = c("border", " │ " if style == "bar" else " · ")
+        if style == "segments":
+            segments = [c("accent" if build else "warn", "● " + self.ctx.mode),
+                        c("accent2", "◆ " + self.cfg["model"]),
+                        c("ok" if st["trial"] else "info", "✓ " + cost),
+                        c(ctx_role, "▰ " + f"ctx {pct}%")]
+            return "  " + c("border", " │ ").join(segments + [c("warn", t) for t in tags])
+        sep = c("border", " │ " if style in ("bar", "segments") else " · ")
         parts = [mode_c, model_c, c("ok" if st["trial"] else "info", cost), ctx_c] + [c("warn", t) for t in tags]
         return "  " + sep.join(parts)
 
@@ -893,13 +899,13 @@ class App:
         return ["  " + c("text", "kerapatan: " + design.get("density"))]
 
     _DESC = {"banner": {"pro": "satu baris profesional", "block": "blok gradien besar", "slant": "miring", "small": "kecil 2 baris", "wide": "huruf renggang",
-                        "boxed": "dalam kotak", "mini": "ringkas", "none": "tanpa banner"},
+                        "boxed": "dalam kotak", "hero": "panel produk modern", "mini": "ringkas", "compact": "dua baris hemat", "none": "tanpa banner"},
              "border": {"rounded": "╭╮ sudut bulat", "square": "┌┐ sudut siku", "heavy": "┏┓ tebal", "double": "╔╗ ganda", "ascii": "+-| aman semua font", "minimal": "hanya garis datar"},
              "icons": {"auto": "ikuti dukungan UTF-8", "unicode": "✓ ✗ ⚠", "ascii": "+ x !", "nerd": "butuh Nerd Font", "emoji": "✅ ❌ 🔧"},
-             "prompt": {"bar": "┃", "arrow": "❯", "chevron": "›", "dollar": "$", "triangle": "▶", "lambda": "λ", "plain": ">"},
-             "gutter": {"none": "tanpa", "bar": "▎ garis", "dot": "● titik", "line": "│ garis tipis"},
-             "status": {"dots": "a · b · c", "pills": "lencana berwarna", "bar": "a │ b │ c", "minimal": "model · ctx"},
-             "density": {"comfortable": "lega", "compact": "ringkas (ponsel)"}}
+             "prompt": {"bar": "┃", "arrow": "❯", "chevron": "›", "dollar": "$", "triangle": "▶", "lambda": "λ", "bot": "⌁", "spark": "✦", "dot": "●", "plain": ">"},
+             "gutter": {"none": "tanpa", "bar": "▎ garis", "dot": "● titik", "line": "│ garis tipis", "rail": "┃ rel tebal", "block": "▐ blok"},
+             "status": {"dots": "a · b · c", "pills": "lencana berwarna", "bar": "a │ b │ c", "segments": "segmen status", "minimal": "model · ctx"},
+             "density": {"comfortable": "lega", "compact": "ringkas (ponsel)", "ultra": "sangat ringkas"}}
 
     def _design_cmd(self, key, arg, label):
         arg = arg.strip().lower()

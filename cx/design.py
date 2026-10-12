@@ -15,6 +15,8 @@ BORDERS = {
     "double": dict(tl="╔", tr="╗", bl="╚", br="╝", h="═", v="║", tj="╦", bj="╩", lj="╠", rj="╣", x="╬"),
     "ascii": dict(tl="+", tr="+", bl="+", br="+", h="-", v="|", tj="+", bj="+", lj="+", rj="+", x="+"),
     "minimal": dict(tl="─", tr="─", bl="─", br="─", h="─", v=" ", tj="─", bj="─", lj="─", rj="─", x="─"),
+    "dashed": dict(tl="╭", tr="╮", bl="╰", br="╯", h="┄", v="┆", tj="┬", bj="┴", lj="├", rj="┤", x="┼"),
+    "thin": dict(tl="╭", tr="╮", bl="╰", br="╯", h="╌", v="╎", tj="┬", bj="┴", lj="├", rj="┤", x="┼"),
 }
 
 ICONS = {
@@ -39,16 +41,20 @@ SPINNERS = {
     "triangle": ("◢◣◤◥", 0.05, False), "arc": ("◜◠◝◞◡◟", 0.1, False), "circle": ("◡⊙◠", 0.12, False),
     "squareCorners": ("◰◳◲◱", 0.18, False), "circleQuarters": ("◴◷◶◵", 0.12, False), "circleHalves": ("◐◓◑◒", 0.05, False),
     "toggle": ("⊶⊷", 0.25, False), "arrow": ("←↖↑↗→↘↓↙", 0.1, False), "simpleDots": (".  ,.. ,...,   ".split(","), 0.4, True),
-    "pulse": ("∙∙∙,●∙∙,∙●∙,∙∙●,∙∙∙".split(","), 0.12, False), "bar": ("[=   ],[==  ],[=== ],[ ===],[  ==],[   =],[  ==],[ ===],[=== ],[==  ]".split(","), 0.1, True),
+    "pulse": ("∙∙∙,●∙∙,∙●∙,∙∙●,∙∙∙".split(","), 0.12, False),
+    "orbit": ("◒◐◓◑".split(), 0.09, False), "spark": ("✦✧✦✧".split(), 0.14, False),
+    "scan": ("▏▎▍▋▊▉█▉▊▋▍▎".split(), 0.08, False), "terminal": ("> _ ,>> _,>>>_,>>>>".split(","), 0.16, True),
+    "wave": ("▁▂▃▄▅▆▇█▇▆▅▄▃▂".split(), 0.07, False),
+    "bar": ("[=   ],[==  ],[=== ],[ ===],[  ==],[   =],[  ==],[ ===],[=== ],[==  ]".split(","), 0.1, True),
     "dqpb": ("dqpb", 0.1, True), "moon": ("🌑🌒🌓🌔🌕🌖🌗🌘", 0.08, False), "earth": ("🌍🌎🌏", 0.18, False),
     "layer": ("-=≡", 0.15, False), "balloon": (" .oO@* ", 0.14, True), "sand": ("⠁⠂⠄⡀⡈⡐⡠⣀⣁⣂⣄⣌⣔⣤⣥⣦⣮⣶⣷⣿⡿⠿⢟⠟⡛⠛⠫⢋⠋⠍⡉⠉⠑⠡⢁", 0.08, False),
 }
 
-PROMPTS = {"bar": "┃ ", "arrow": "❯ ", "chevron": "› ", "dollar": "$ ", "triangle": "▶ ", "lambda": "λ ", "plain": "> "}
-GUTTERS = {"none": "", "bar": "▎ ", "dot": "● ", "line": "│ "}
-STATUS = ("dots", "pills", "bar", "minimal")
-DENSITY = ("comfortable", "compact")
-CHOICES = {"banner": ("pro", "block", "slant", "small", "wide", "boxed", "mini", "none"), "border": tuple(BORDERS),
+PROMPTS = {"bar": "┃ ", "arrow": "❯ ", "chevron": "› ", "dollar": "$ ", "triangle": "▶ ", "lambda": "λ ", "bot": "⌁ ", "spark": "✦ ", "dot": "● ", "plain": "> "}
+GUTTERS = {"none": "", "bar": "▎ ", "dot": "● ", "line": "│ ", "rail": "┃ ", "block": "▐ "}
+STATUS = ("dots", "pills", "bar", "segments", "minimal")
+DENSITY = ("comfortable", "compact", "ultra")
+CHOICES = {"banner": ("pro", "block", "slant", "small", "wide", "boxed", "hero", "mini", "compact", "none"), "border": tuple(BORDERS),
            "spinner": tuple(SPINNERS), "icons": ("auto",) + tuple(ICONS), "prompt": tuple(PROMPTS), "status": STATUS,
            "gutter": tuple(GUTTERS), "density": DENSITY}
 
@@ -63,11 +69,18 @@ PRESETS = {
     "paper":    dict(theme="paper", banner="small", border="rounded", spinner="arc", prompt="arrow", status="dots", gutter="none", density="comfortable"),
     "contrast": dict(theme="contrast", banner="pro", border="heavy", spinner="line", prompt="arrow", status="bar", gutter="bar", density="comfortable"),
     "termux":   dict(theme="auto", banner="pro", border="rounded", spinner="dots", prompt="chevron", status="minimal", gutter="none", density="compact"),
+    "cyberpunk": dict(theme="neon", banner="hero", border="heavy", spinner="scan", prompt="spark", status="segments", gutter="rail", density="comfortable"),
+    "ocean": dict(theme="aurora", banner="hero", border="dashed", spinner="wave", prompt="chevron", status="pills", gutter="line", density="comfortable"),
+    "forest": dict(theme="everforest", banner="pro", border="rounded", spinner="orbit", prompt="bot", status="segments", gutter="block", density="comfortable"),
+    "midnight": dict(theme="tokyonight-storm", banner="boxed", border="double", spinner="spark", prompt="arrow", status="bar", gutter="rail", density="comfortable"),
+    "mono": dict(theme="system", banner="compact", border="ascii", spinner="terminal", prompt="plain", status="minimal", gutter="none", density="compact"),
+    "zen": dict(theme="rose-pine", banner="compact", border="thin", spinner="pulse", prompt="dot", status="minimal", gutter="none", density="ultra"),
 }
 PRESET_NOTE = {"codinx": "bawaan, seimbang", "opencode": "mirip TUI opencode (jingga/biru, gutter)", "claude": "terakota + titik ala Claude Code",
                "codex": "netral, prompt ›", "minimal": "tanpa banner, ringkas", "retro": "terminal CRT amber, border ganda",
                "neon": "synthwave, lencana status", "paper": "tema terang kertas", "contrast": "kontras tinggi (aksesibilitas)",
-               "termux": "ringkas untuk layar ponsel"}
+               "termux": "ringkas untuk layar ponsel", "cyberpunk": "neon futuristik dengan animasi scan", "ocean": "biru aurora dengan garis putus",
+               "forest": "hijau natural, tenang dan fokus", "midnight": "biru malam dengan panel ganda", "mono": "ASCII minimal untuk terminal apa pun", "zen": "ringkas dan tenang"}
 
 STATE = dict(DEFAULT)
 
@@ -94,6 +107,10 @@ def banner_rows(style):
         return [" " * ((5 - i) // 2) + row for i, row in enumerate(block_rows())]
     if style == "small":
         return [" ".join(SMALL[ch][r] for ch in "CODINX") for r in range(2)]
+    if style == "hero":
+        return ["╭─ CODINXTERMUXV2 ─────────────────────────────────────╮", "│  AI coding agent · web research · multi-provider      │", "╰────────────────────────────────────────────────────────╯"]
+    if style == "compact":
+        return ["[ CodinXTermuxV2 ]", "AI coding agent"]
     if style == "wide":
         return ["  ".join("CODINX"), "━" * 16]
     return None

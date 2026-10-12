@@ -19,20 +19,20 @@ Terdeteksi otomatis: truecolor (24-bit) → 256 → 16 → tanpa warna. Termux s
 Latar terang dengan tema gelap membuat teks terang tak terbaca → pakai `/theme auto` atau `/theme light`.
 
 ## Preset (`/design`)
-`codinx` (bawaan) · `opencode` · `claude` · `codex` · `minimal` · `retro` · `neon` · `paper` · `contrast` · `termux`.
+`codinx` (bawaan) · `opencode` · `claude` · `codex` · `minimal` · `retro` · `neon` · `paper` · `contrast` · `termux` · `cyberpunk` · `ocean` · `forest` · `midnight` · `mono` · `zen`.
 `/design` membuka pemilih preset (pratinjau langsung). `/design save <nama>` menyimpan preset sendiri; `/design reset`, `/design show`, `/design set <kunci> <nilai>`.
 
 ## Pilihan satuan
 | Perintah | Pilihan |
 |---|---|
-| `/banner` | pro · block · slant · small · wide · boxed · mini · none |
-| `/border` | rounded · square · heavy · double · ascii · minimal |
-| `/spinner` | 30 gaya (dots, dots2, line, pulse, star, moon, bounce, arc, …) |
+| `/banner` | pro · block · slant · small · wide · boxed · hero · mini · compact · none |
+| `/border` | rounded · square · heavy · double · dashed · thin · ascii · minimal |
+| `/spinner` | 35+ gaya (dots, scan, wave, orbit, spark, terminal, pulse, star, moon, bounce, arc, …) |
 | `/icons` | auto · unicode · ascii · nerd · emoji |
-| `/prompt` | bar ┃ · arrow ❯ · chevron › · dollar $ · triangle ▶ · lambda λ · plain > |
-| `/gutter` | none · bar · dot · line (penanda di kiri jawaban) |
-| `/footer` | dots · pills · bar · minimal (baris status) |
-| `/density` | comfortable · compact (hemat baris, cocok layar ponsel) |
+| `/prompt` | bar ┃ · arrow ❯ · chevron › · dollar $ · triangle ▶ · lambda λ · bot ⌁ · spark ✦ · dot ● · plain > |
+| `/gutter` | none · bar · dot · line · rail · block (penanda di kiri jawaban) |
+| `/footer` | dots · pills · bar · segments · minimal (baris status) |
+| `/density` | comfortable · compact · ultra (hemat baris, cocok layar ponsel) |
 
 Terminal tanpa UTF-8 otomatis memakai ASCII (border, ikon, spinner, prompt).
 

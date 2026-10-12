@@ -204,7 +204,7 @@ class UI:
         style = design.get("banner")
         w = term_width()
         rows = design.banner_rows(style)
-        compact = design.get("density") == "compact"
+        compact = design.get("density") in ("compact", "ultra")
         if not compact:
             self.p()
         tag = f"v{__version__} · terminal coding agent"
