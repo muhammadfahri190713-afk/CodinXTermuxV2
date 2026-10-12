@@ -102,6 +102,33 @@ CODINX_AUTO_PROBE=1
 CODINX_HOME=~/.codinx
 ```
 
+### API pembantu terpisah
+
+API pembantu **bukan** `CODINX_API_KEY` utama. Untuk menyimpannya di direktori proyek tanpa mengubah provider utama, gunakan file lokal berikut:
+
+```bash
+cp helper_api.example.py helper_api.py
+chmod 600 helper_api.py
+```
+
+Isi hanya di `helper_api.py` lokal:
+
+```python
+HELPER_API_KEY = "ISI_API_PEMBANTU_DI_SINI"
+HELPER_BASE_URL = "https://api.manus.im/api/llm-proxy/v1"
+HELPER_MODEL = "claude-opus-4-7"
+```
+
+`helper_api.py` sudah di-ignore Git. Alternatifnya, gunakan `.env` lokal:
+
+```dotenv
+CODINX_HELPER_API_KEY=ISI_API_PEMBANTU_DI_SINI
+CODINX_HELPER_BASE_URL=https://api.manus.im/api/llm-proxy/v1
+CODINX_HELPER_MODEL=claude-opus-4-7
+```
+
+Key helper dibaca melalui client terpisah dan tidak menggantikan `CODINX_API_KEY`.
+
 Selain `.env`, kamu dapat menjalankan wizard koneksi dari dalam aplikasi:
 
 ```text

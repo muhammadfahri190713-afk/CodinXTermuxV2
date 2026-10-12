@@ -61,3 +61,10 @@ Salin `api.example.py` menjadi `api.py`, lalu isi `API_KEY`. File ini hanya diba
 ## File data di `~/.codinx/`
 
 `config.json` · `.key.enc` (kunci terenkripsi) · `api.py` · `.env` legacy · `sessions/` · `memory.json` · `usage.json` · `geo.json` · `caps.json` (hasil diagnosa) · `history` · `skills/` · `commands/` · `agents/` · `hooks.json` · `mcp.json` · `logs/` · `shares/` · `bg/`
+
+
+## API pembantu terpisah
+
+API pembantu tidak menggunakan `CODINX_API_KEY`. Salin `helper_api.example.py` menjadi `helper_api.py`, isi `HELPER_API_KEY`, lalu pastikan file lokal tersebut bermode 600. File `helper_api.py` di-ignore Git. Endpoint dan model helper default adalah `https://api.manus.im/api/llm-proxy/v1` dan `claude-opus-4-7`.
+
+Alternatif environment lokal: `CODINX_HELPER_API_KEY`, `CODINX_HELPER_BASE_URL`, dan `CODINX_HELPER_MODEL`.

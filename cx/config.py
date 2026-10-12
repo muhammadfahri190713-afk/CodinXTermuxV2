@@ -19,11 +19,15 @@ HISTORY = os.path.join(HOME, "history")
 
 DEFAULT_BASE_URL = "https://inttelix.vercel.app/api/v1"
 DEFAULT_MODEL = "deepseek-v4-flash"
+DEFAULT_HELPER_BASE_URL = "https://api.manus.im/api/llm-proxy/v1"
+DEFAULT_HELPER_MODEL = "claude-opus-4-7"
 
 DEFAULTS = {
     "base_url": DEFAULT_BASE_URL,
     "provider": "inttelix",
     "model": DEFAULT_MODEL,
+    "helper_base_url": DEFAULT_HELPER_BASE_URL,
+    "helper_model": DEFAULT_HELPER_MODEL,
     "tier": "free",
     "trial_mode": True,        # masa uji coba: semua model gratis (matikan: CODINX_TRIAL=0)
     "timezone": "",
@@ -93,10 +97,12 @@ def _parse_api_file(path):
         if not isinstance(node, ast.Assign) or len(node.targets) != 1 or not isinstance(node.targets[0], ast.Name):
             continue
         name = node.targets[0].id
-        if name not in ("API_KEY", "CODINX_API_KEY", "BASE_URL", "CODINX_BASE_URL"):
+        allowed = {"API_KEY": "CODINX_API_KEY", "CODINX_API_KEY": "CODINX_API_KEY", "BASE_URL": "CODINX_BASE_URL", "CODINX_BASE_URL": "CODINX_BASE_URL",
+                   "HELPER_API_KEY": "CODINX_HELPER_API_KEY", "HELPER_BASE_URL": "CODINX_HELPER_BASE_URL", "HELPER_MODEL": "CODINX_HELPER_MODEL"}
+        if name not in allowed:
             continue
         if isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
-            out["CODINX_API_KEY" if name in ("API_KEY", "CODINX_API_KEY") else "CODINX_BASE_URL"] = node.value.value.strip()
+            out[allowed[name]] = node.value.value.strip()
     return out
 
 
@@ -107,6 +113,9 @@ def env_paths():
 
 def api_paths():
     paths = [os.path.join(HOME, "api.py"), os.path.join(ROOT, "api.py"), os.path.join(os.getcwd(), "api.py")]
+    return list(dict.fromkeys(paths))
+def helper_api_paths():
+    paths = [os.path.join(HOME, "helper_api.py"), os.path.join(ROOT, "helper_api.py"), os.path.join(os.getcwd(), "helper_api.py")]
     return list(dict.fromkeys(paths))
 
 
@@ -126,6 +135,15 @@ def api_file():
     return _api_file
 
 
+def helper_api_file():
+    data = {}
+    for p in helper_api_paths():
+        if os.path.isfile(p):
+            try:
+                if os.stat(p).st_mode & 0o077: os.chmod(p, 0o600)
+            except OSError: pass
+            data.update({k:v for k,v in _parse_api_file(p).items() if k.startswith("CODINX_HELPER_")})
+    return data
 def dotenv():
     global _dotenv
     if _dotenv is None:
@@ -143,7 +161,7 @@ def dotenv():
 
 
 def env(name):
-    return os.environ.get(name) or api_file().get(name) or dotenv().get(name) or ""
+    return os.environ.get(name) or (helper_api_file() if name.startswith("CODINX_HELPER_") else api_file()).get(name) or dotenv().get(name) or ""
 
 
 def key_source():
@@ -218,6 +236,10 @@ def load(cwd=None):
         cfg["base_url"] = env("CODINX_BASE_URL")
     if env("CODINX_MODEL"):
         cfg["model"] = env("CODINX_MODEL")
+    if env("CODINX_HELPER_BASE_URL"):
+        cfg["helper_base_url"] = env("CODINX_HELPER_BASE_URL")
+    if env("CODINX_HELPER_MODEL"):
+        cfg["helper_model"] = env("CODINX_HELPER_MODEL")
     if env("CODINX_TIER"):
         cfg["tier"] = env("CODINX_TIER").lower()
     for var, k in (("CODINX_PROVIDER", "provider"), ("CODINX_TOOL_MODE", "tool_mode"), ("CODINX_HISTORY_MODE", "history_mode"),
@@ -233,6 +255,7 @@ def load(cwd=None):
     if cfg.get("history_mode") not in ("auto", "native", "flat"):
         cfg["history_mode"] = "auto"
     cfg["base_url"] = normalize_url(cfg["base_url"])
+    cfg["helper_base_url"] = normalize_url(cfg.get("helper_base_url", DEFAULT_HELPER_BASE_URL))
     # nilai yang berasal dari env/.env tidak boleh ikut tersimpan ke config.json (hanya berlaku selama env itu ada)
     cfg["__env"] = {k: (before[k], cfg.get(k)) for k in before if cfg.get(k) != before[k]}
     return cfg
