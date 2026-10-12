@@ -206,6 +206,7 @@ Baca [SECURITY.md](SECURITY.md) untuk kebijakan keamanan dan [docs/GITHUB.md](do
 | Proxy compatibility | [docs/PROXY_COMPAT.md](docs/PROXY_COMPAT.md) |
 | Troubleshooting | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) |
 | Upgrade notes | [docs/UPGRADE_1_4.md](docs/UPGRADE_1_4.md) |
+| System prompt publik | [system_prompt.txt](system_prompt.txt) · [catatan desain](docs/SYSTEM_PROMPT.md) |
 
 ## Pengembangan lokal
 

@@ -9,7 +9,8 @@ from . import agents, api, caps, fsutil, geo, log, mcp, memory, skills, tiers, t
 from .tools import PLAN_HIDDEN, SCHEMAS, SUBAGENT_TOOLS
 from .themes import c
 
-SYSTEM = """Kamu adalah CodinX, agent coding otonom yang berjalan di terminal milik user (Linux atau Termux).
+_PROMPT_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "system_prompt.txt")
+_SYSTEM_FALLBACK = """Kamu adalah CodinX, agent coding otonom yang berjalan di terminal milik user (Linux atau Termux).
 Tugasmu: benar-benar menyelesaikan pekerjaan — membuat, mengubah, menjalankan, dan memverifikasi kode/file — bukan sekadar menyarankan.
 
 ## Cara kerja
@@ -35,6 +36,18 @@ Tugasmu: benar-benar menyelesaikan pekerjaan — membuat, mengubah, menjalankan,
 
 ## Format jawaban (dirender berwarna di terminal)
 - Markdown: `##` judul, **tebal**, `kode`, bullet, tabel `| a | b |`, dan blok kode ```bahasa. Path file dalam `backtick`. Jangan bertele-tele."""
+
+def _load_system_prompt():
+    try:
+        with open(_PROMPT_FILE, encoding="utf-8") as f:
+            text = f.read().strip()
+        if text:
+            return text
+    except OSError:
+        pass
+    return _SYSTEM_FALLBACK
+
+SYSTEM = _load_system_prompt()
 
 PLAN_NOTE = """
 ## MODE PLAN (read-only)
