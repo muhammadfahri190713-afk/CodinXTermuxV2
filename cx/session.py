@@ -19,6 +19,8 @@ class Session:
         self.tokens_total = 0
         self.remote_id = None       # id respons terakhir dari server (chatcmpl-...)
         self.remote_conv = None     # id percakapan yang diberikan server (jika ada)
+        self.remote_segment = 0     # segment internal provider; bukan sesi user
+        self.remote_context = ""    # ringkasan konteks yang dikirim setelah rotasi provider
         self.turns = []        # in-memory: {"index","user","backups"}
         self.redo_stack = []
 
@@ -38,7 +40,8 @@ class Session:
         data = {"id": self.id, "cwd": self.cwd, "created": self.created, "title": self.title,
                 "messages": self.messages, "todos": self.todos,
                 "last_prompt_tokens": self.last_prompt_tokens, "tokens_total": self.tokens_total,
-                "remote_id": self.remote_id, "remote_conv": self.remote_conv}
+                "remote_id": self.remote_id, "remote_conv": self.remote_conv,
+                "remote_segment": self.remote_segment, "remote_context": self.remote_context}
         tmp = self.path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False)
@@ -54,6 +57,8 @@ class Session:
         s.messages, s.todos = d.get("messages", []), d.get("todos", [])
         s.last_prompt_tokens, s.tokens_total = d.get("last_prompt_tokens", 0), d.get("tokens_total", 0)
         s.remote_id, s.remote_conv = d.get("remote_id"), d.get("remote_conv")
+        s.remote_segment = int(d.get("remote_segment", 0) or 0)
+        s.remote_context = str(d.get("remote_context", "") or "")
         return s
 
     @staticmethod

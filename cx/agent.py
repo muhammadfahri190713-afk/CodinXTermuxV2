@@ -62,6 +62,9 @@ EXPLORE_SYSTEM = """Kamu sub-agent penelusur CodinX (read-only). Jelajahi codeba
 lalu beri jawaban ringkas dan akurat (sebut path:baris). Jangan mengubah apa pun."""
 
 TOOL_ERR = re.compile(r"(?i)tool|function|role|schema|parameter|unsupported|not support")
+ROTATE_ERR = re.compile(
+    r"(?i)(too many|maximum|max(?:imum)?|exceed|limit|quota|length|context|token|tool.?call|function.?call|conversation|thread)"
+)
 
 
 def _git_info(cwd):
@@ -109,9 +112,70 @@ class Agent:
 
     def conv_id(self):
         s = self.app.session
+        if s.remote_segment:
+            # Segment baru hanya untuk provider; Session.id dan memory user tetap sama.
+            return f"{s.id}:segment-{s.remote_segment}"
         if self.cfg.get("conv_source") == "server" and self.cfg.get("conv_field"):
             return s.remote_conv or None
         return s.id
+
+    @staticmethod
+    def _provider_limit(err):
+        """True hanya untuk error yang terlihat seperti batas context/tool provider."""
+        body = ((err.body or "") + " " + str(err)).lower()
+        if not ROTATE_ERR.search(body):
+            return False
+        # 401/403 adalah kredensial/permission, bukan alasan untuk membuat segment baru.
+        if err.status in (401, 403, 404):
+            return False
+        # Rate limit kuota/traffic ditangani oleh retry API; yang dirotasi adalah
+        # batas percakapan/tool/context, bukan pembatasan akun atau server.
+        if err.status == 429 and not re.search(r"(?i)(tool|function|conversation|thread|context|token)", body):
+            return False
+        return bool(re.search(r"(?i)(tool.?call|function.?call|conversation|thread|context|token|maximum.{0,30}(tool|function|message|context)|too many.{0,30}(tool|function|message))", body))
+
+    def _remote_messages(self, messages):
+        """Kirim ringkasan segment lama + giliran aktif, tanpa menghapus history lokal."""
+        s = self.app.session
+        if not s.remote_context:
+            return messages
+        # Mulai dari user terakhir agar pasangan assistant/tool tetap utuh pada giliran aktif.
+        start = 0
+        for i in range(len(messages) - 1, -1, -1):
+            if messages[i].get("role") == "user":
+                start = i
+                break
+        active = messages[start:]
+        seed = [{"role": "user", "content": "[Konteks percakapan sebelumnya — tetap lanjutkan tugas yang sama]\n" + s.remote_context},
+                {"role": "assistant", "content": "Konteks dipahami. Lanjutkan dari giliran aktif."}]
+        return seed + active
+
+    def _rotate_remote_segment(self, messages, err):
+        """Putuskan hanya conversation id provider; session lokal dan memory tidak berubah."""
+        s = self.app.session
+        if not self._provider_limit(err):
+            return False
+        pieces = []
+        for m in messages:
+            role = m.get("role", "")
+            content = str(m.get("content") or "").strip()
+            if not content:
+                continue
+            if role == "user":
+                pieces.append("USER: " + content[:1800])
+            elif role == "assistant":
+                pieces.append("ASSISTANT: " + content[:1800])
+            elif role == "tool":
+                pieces.append("TOOL: " + content[:1200])
+        summary = "\n".join(pieces)
+        if len(summary) > 12000:
+            summary = summary[:6000] + "\n… konteks lama dipadatkan …\n" + summary[-6000:]
+        s.remote_context = summary
+        s.remote_segment += 1
+        s.remote_conv = None
+        log.debug("provider_segment_rotated", segment=s.remote_segment, reason=(err.body or str(err))[:180])
+        s.save()
+        return True
 
     # ------------------------------------------------------------ prompt
     def skill_block(self, text):
@@ -206,9 +270,11 @@ class Agent:
         s = self.app.session
         valid = [x["function"]["name"] for x in (schemas or [])]
         msg = usage = meta = None
-        for _attempt in range(3):
+        rotated = False
+        for _attempt in range(4):
             tm, hm = self.modes()
-            wire_msgs = wire.to_wire(system, messages, hm, tm, schemas if tm == "text" else None, self.max_chars())
+            remote_messages = self._remote_messages(messages)
+            wire_msgs = wire.to_wire(system, remote_messages, hm, tm, schemas if tm == "text" else None, self.max_chars())
             log.debug("llm_request", model=self.cfg["model"], tool_mode=tm, history=hm, wire_msgs=len(wire_msgs),
                       roles=[m["role"] for m in wire_msgs][-4:], chars=sum(len(m.get("content") or "") for m in wire_msgs), tools=len(schemas or []))
             filt = wire.CallFilter(self.ui.stream_text) if stream else None
@@ -228,6 +294,9 @@ class Agent:
                 if stream:
                     self.ui.stream_end()
                 if self._fallback_to_text(e, tm, schemas, messages):
+                    continue
+                if not rotated and self._rotate_remote_segment(messages, e):
+                    rotated = True
                     continue
                 self.ui.err(str(e))
                 return None, None
